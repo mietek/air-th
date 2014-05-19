@@ -1,0 +1,35 @@
+import System.Nemesis.Titan
+import System.Nemesis.Env
+import Air.Env
+import Prelude ()
+
+main = run - do
+  
+  clean
+    [ "**/*.hi"
+    , "**/*.o"
+    , "manifest"
+    ]
+    
+  desc "prepare cabal dist"
+  task "dist" - do
+    sh "cabal clean"
+    sh "cabal configure"
+    sh "cabal sdist"
+
+  desc "run shell"
+  task "i" - do
+    sh "ghci -isrc -XTemplateHaskell src/Air.hs"
+    
+  desc "run test shell"
+  task "test" - do
+    sh "ghci -isrc -XTemplateHaskell -ddump-splices src/Test.hs"
+  
+  
+  desc "put all .hs files in manifest"
+  task "manifest" - do
+    sh "find . | grep 'hs$' > manifest"
+  
+  titan "Test.hs"
+  
+  task "t:Test/titan" - return ()
